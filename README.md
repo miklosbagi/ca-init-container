@@ -9,7 +9,8 @@ Here's a docker compose example for extending miniflux:
 services:
   miniflux-certs-sidecar:
     build:
-      context: ../_common/ca-sidecar
+      context: https://github.com/miklosbagi/ca-sidecar.git#main
+      # pick the correct Dockerfile for your main image (i.e. miniflux runs in alpine, so we use the alpine Dockerfile)
       dockerfile: Dockerfile.cert-inject-alpine
     volumes:
       # map location where the _ca.crt files are at (i.e. root_ca.crt, intermediate_ca.pem, etc)
@@ -32,6 +33,17 @@ services:
 
   db:
   ...
+```
+
+Or in case this repo is not required to be present locally, this can be simplified by building the image from github directly:
+
+```yaml
+services:
+  miniflux-certs-sidecar:
+    build:
+
+    volumes:
+    ...
 ```
 
 ## How to tell if it worked
