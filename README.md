@@ -19,7 +19,7 @@ services:
       - ./config/ssl:/output-certs
 
   miniflux:
-    image: miniflux/miniflux:distroless
+    image: miniflux/miniflux
     environment:
       ...
     volumes:
@@ -33,17 +33,6 @@ services:
 
   db:
   ...
-```
-
-Or in case this repo is not required to be present locally, this can be simplified by building the image from github directly:
-
-```yaml
-services:
-  miniflux-certs-sidecar:
-    build:
-
-    volumes:
-    ...
 ```
 
 ## How to tell if it worked
