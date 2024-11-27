@@ -1,0 +1,6 @@
+FROM alpine:3.20.3
+RUN apk add --no-cache ca-certificates
+# Add a cert-update script
+COPY update-certs.sh /update-certs.sh
+RUN chmod +x /update-certs.sh
+ENTRYPOINT ["/update-certs.sh"]
