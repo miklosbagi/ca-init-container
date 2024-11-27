@@ -19,7 +19,7 @@ services:
       - ./config/ssl:/output-certs
 
   miniflux:
-    image: ${MINIFLUX_IMAGE:-miniflux/miniflux}:${MINIFLUX_DOCKER_TAG:-distroless}
+    image: miniflux/miniflux:distroless
     environment:
       ...
     volumes:
