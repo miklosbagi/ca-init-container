@@ -1,7 +1,7 @@
 # CA-Init-Container
-This project consists a set of Dockerfiles aimed to override the /etc/ssl directory in other Docker images.
-The purpose here is to provide a way to inject custom CA certificates into other images, without the need to rebuild them.
-
+This project provides a set of Dockerfiles designed to override the /etc/ssl directory in other Docker images.
+Its main purpose is to inject custom CA certificates into other images without requiring a full rebuild.
+ 
 ## How to use
 Here's a docker compose example for extending miniflux:
 
@@ -15,7 +15,7 @@ services:
     volumes:
       # map location where the _ca.crt files are at (i.e. root_ca.crt, intermediate_ca.pem, etc)
       - ../_common/certs:/certs:ro
-      # map the output directory, this is where the ca-init-container generates all the ssl certs, and makes your target container simply suck it up as-is.
+      # map the output directory – this is where the init container generates all the SSL certificates. The target container will then use them as-is.
       - ./config/ssl:/output-certs
 
   miniflux:
@@ -36,7 +36,7 @@ services:
 ```
 
 ## How to tell if it worked
-The easiest way is to look into the target container's ssl directory and see if there's a `generated-by-sidecar` file exists there. For example:
+The easiest way is to look into the target container's ssl directory and see if a generated-by-cainit file exists there.
 ```
 ❯ docker exec -it miniflux-miniflux-1 ls -la /etc/ssl generated-by-cainit*
 -rw-r--r--    1 root     root             0 Nov 27 16:28 generated-by-cainit-20241127-162837
