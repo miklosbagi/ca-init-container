@@ -3,11 +3,14 @@ This project provides a set of Dockerfiles designed to override the /etc/ssl dir
 Its main purpose is to inject custom CA certificates into other images without requiring a full rebuild.
  
 ## How to use
-Here's a docker compose example for extending miniflux:
+Here are a few docker compose examples.
+
+### Home Assistant
+Home assistant doesn't have an option for cert injection. For the dockerized versions, one does not have to use over the fence solutions like [HACI](https://www.github.com/miklosbagi/haci), but can use an init container setup instead, i.e.:
 
 ```yaml
 services:
-  miniflux-certs-init:
+  ha-certs-init:
     build:
       context: https://github.com/miklosbagi/ca-init-container.git#main
       # pick the correct Dockerfile for your main image (i.e. miniflux runs in alpine, so we use the alpine Dockerfile)
@@ -15,7 +18,33 @@ services:
     volumes:
       # map location where the _ca.crt files are at (i.e. root_ca.crt, intermediate_ca.pem, etc)
       - ../_common/certs:/certs:ro
-      # map the output directory – this is where the init container generates all the SSL certificates. The target container will then use them as-is.
+      # map the output directory, this is where the ca-init-container generates all the ssl certs, and makes your target container simply suck it up as-is.
+      - ./config/ssl:/output-certs
+
+  homeassistant:
+    image: homeassistant/home-assistant:latest
+    environment:
+      # pithon certificates override
+      REQUESTS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.crt'
+    volumes:
+      # linux certificates override
+      - './config/ssl:/etc/ssl:ro'
+    depends_on:
+      ha-certs-init:
+        condition: service_completed_successfully
+```
+
+### Miniflux
+Miniflux have no option to add custom certificates, unfortunately, so we need to ca-init it on top of it.
+
+```yaml
+services:
+  miniflux-certs-init:
+    build:
+      context: https://github.com/miklosbagi/ca-init-container.git#main
+      dockerfile: Dockerfile.cert-inject-alpine
+    volumes:
+      - ../_common/certs:/certs:ro
       - ./config/ssl:/output-certs
 
   miniflux:
