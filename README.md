@@ -9,7 +9,7 @@ Here are a few docker compose examples on the Wiki:
 - [Uptime Kuma](Example:-Uptime-Kuma)
 
 The Home Assistant example:
-```
+```yaml
 services:
   ha-certs-init:
     build:
@@ -25,7 +25,7 @@ services:
   homeassistant:
     image: homeassistant/home-assistant:latest
     environment:
-      # pithon certificates override
+      # python certificates override
       REQUESTS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.crt'
     volumes:
       # linux certificates override
