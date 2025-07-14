@@ -8,6 +8,33 @@ Here are a few docker compose examples on the Wiki:
 - [Miniflux](Example:-Miniflux)
 - [Uptime Kuma](Example:-Uptime-Kuma)
 
+The Home Assistant example:
+```
+services:
+  ha-certs-init:
+    build:
+      context: https://github.com/miklosbagi/ca-init-container.git#main
+      # pick the correct Dockerfile for your main image (i.e. miniflux runs in alpine, so we use the alpine Dockerfile)
+      dockerfile: Dockerfile.cert-inject-alpine
+    volumes:
+      # map location where the _ca.crt files are at (i.e. root_ca.crt, intermediate_ca.pem, etc)
+      - ../_common/certs:/certs:ro
+      # map the output directory, this is where the ca-init-container generates all the ssl certs, and makes your target container simply suck it up as-is.
+      - ./config/ssl:/output-certs
+
+  homeassistant:
+    image: homeassistant/home-assistant:latest
+    environment:
+      # pithon certificates override
+      REQUESTS_CA_BUNDLE: '/etc/ssl/certs/ca-certificates.crt'
+    volumes:
+      # linux certificates override
+      - './config/ssl:/etc/ssl:ro'
+    depends_on:
+      ha-certs-init:
+        condition: service_completed_successfully
+```
+
 ## How to tell if it worked
 The easiest way is to look into the target container's ssl directory and see if a generated-by-cainit file exists there.
 ```
